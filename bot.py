@@ -33,7 +33,7 @@ FAUCETPAY_SEND_URL = "https://faucetpay.io/api/v1/send"
 FAUCETPAY_BALANCE_URL = "https://faucetpay.io/api/v1/getbalance"
 
 # JSON file path
-DATA_DIR = "/app/data"
+DATA_DIR = os.getenv("RAILWAY_VOLUME_MOUNT_PATH", "/tmp/data")
 DATA_FILE = os.path.join(DATA_DIR, "data.json")
 
 # Ensure the directory exists
@@ -112,6 +112,10 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         }
         save_user(user_id, user_data)
         logger.info(f"New user {user_id} joined. Initial balance: 0.0001 TRX, Referral code: {referral_code}")
+    else:
+        # Debug: Force a save to ensure data.json is written
+        logger.info(f"User {user_id} already exists, forcing save: {user_data}")
+        save_user(user_id, user_data)
     
     # Handle referrals
     if context.args and len(context.args) == 1:
